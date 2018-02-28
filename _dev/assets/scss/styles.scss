@@ -1,0 +1,82 @@
+body {
+    height: 100%;
+    padding: 0px;
+    margin: 0px;
+    background-color: #FAFAFA;
+}
+
+#landingPageHeader {
+    color: #FAFAFA;
+    -webkit-animation: landingPageHeader 1s forwards;
+    animation: landingPageHeader 1s forwards;
+}
+
+.row img {
+    border: 1px solid black;
+}
+
+.row:nth-of-type(n+2) {
+    margin-top: 30px;
+}
+
+.montrealBixiClicktag {
+    cursor: pointer;
+}
+
+@keyframes landingPageHeader {
+    0% {
+        background-color: #212121;
+    }
+    100% {
+        background-color: #2962FF;
+    }
+}
+
+@-webkit-keyframes landingPageHeader {
+    0% {
+        background-color: #212121;
+    }
+    100% {
+        background-color: #2962FF;
+    }
+}
+
+
+/* typed.js */
+
+.typed-cursor {
+    opacity: 1;
+    -webkit-animation: blink 0.7s infinite;
+    animation: blink 0.7s infinite;
+    font-size: 18px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    font-family: inherit;
+    font-weight: 500;
+    line-height: 1.1;
+    color: inherit;
+}
+
+@keyframes blink {
+    0% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+@-webkit-keyframes blink {
+    0% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
+}
