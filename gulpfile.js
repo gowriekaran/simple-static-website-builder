@@ -4,7 +4,7 @@ var sass = require('gulp-sass');
 var useref = require('gulp-useref');
 var uglify = require('gulp-uglify');
 var gulpIf = require('gulp-if');
-var cssnano = require('gulp-cssnano');
+var minifyCss = require('gulp-clean-css');
 var imagemin = require('gulp-imagemin');
 var cache = require('gulp-cache');
 var del = require('del');
@@ -36,16 +36,11 @@ gulp.task('images', function () {
         .pipe(gulp.dest('_prod/assets/imgs'))
 });
 
-gulp.task('styles', function () {
-    return gulp.src('_dev/assets/css/**/*')
-        .pipe(gulp.dest('_prod/assets/css'))
-})
-
 gulp.task('useref', function () {
     return gulp.src('_dev/*.html')
         .pipe(useref())
         .pipe(gulpIf('*.js', uglify()))
-        // .pipe(gulpIf('*.css', cssnano()))
+        .pipe(gulpIf('*.css', minifyCss()))
         .pipe(gulp.dest('_prod'))
 });
 
@@ -61,7 +56,7 @@ gulp.task('watch', ['browserSync', 'sass'], function () {
 
 gulp.task('build', function (callback) {
     runSequence('clean:_prod',
-        ['sass', 'useref', 'images', 'styles'],
+        ['sass', 'useref', 'images'],
         callback
     )
 })
