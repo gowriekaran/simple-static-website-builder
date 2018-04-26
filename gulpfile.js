@@ -20,7 +20,7 @@ gulp.task('browserSync', function () {
 
 gulp.task('sass', function () {
     return gulp.src('_dev/assets/scss/**/*.scss') // Gets all files ending with .scss in _dev/scss
-        .pipe(sass())
+        .pipe(sass().on('error', sass.logError))
         .pipe(gulp.dest('_dev/assets/css'))
         .pipe(browserSync.reload({
             stream: true
