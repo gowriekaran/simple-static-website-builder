@@ -1,2 +1,2 @@
 # website-builder
-Gulp app to build websites
+Gulp app to web apps with ease.
