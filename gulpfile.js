@@ -2,13 +2,13 @@ var autoprefixer = require("autoprefixer"),
     browserify = require("browserify"),
     browserSync = require("browser-sync").create(),
     buffer = require("vinyl-buffer"),
+    concat = require('gulp-concat'),
     cssnano = require("cssnano"),
     del = require("del"),
     glob = require("glob"),
     gulp = require("gulp"),
     htmlmin = require("gulp-htmlmin"),
     postcss = require("gulp-postcss"),
-    rename = require('gulp-rename'),
     sass = require("gulp-sass"),
     source = require("vinyl-source-stream"),
     sourcemaps = require("gulp-sourcemaps"),
@@ -25,7 +25,7 @@ var paths = {
     dev: {
         scss: "_dev/assets/scss/*.{scss,sass}",
         css: "_dev/assets/css/*.css",
-        img: "_dev/assets/img/*.{png,jpg,jpeg,gif,svg,ico}",
+        img: "_dev/assets/img/**/*.*",
         js: "_dev/assets/js/*.js",
         json: "_dev/assets/json/*.json",
         html: "_dev/*.html"
@@ -80,12 +80,10 @@ function compileSCSSIntoTemp() {
         .src(paths.dev.scss)
         .pipe(sourcemaps.init())
         .pipe(sass())
+        .pipe(concat("styles.min.css"))
         .on("error", sass.logError)
         .pipe(postcss([autoprefixer(), cssnano()]))
         .pipe(sourcemaps.write())
-        .pipe(rename({
-            suffix: '.min'
-        }))
         .pipe(gulp.dest(paths.temp.css))
         .pipe(browserSync.stream())
     );
@@ -148,12 +146,10 @@ function compileSCSSIntoProd() {
         .src(paths.dev.scss)
         .pipe(sourcemaps.init())
         .pipe(sass())
+        .pipe(concat("styles.min.css"))
         .on("error", sass.logError)
         .pipe(postcss([autoprefixer(), cssnano()]))
         .pipe(sourcemaps.write())
-        .pipe(rename({
-            suffix: '.min'
-        }))
         .pipe(gulp.dest(paths.prod.css))
         .pipe(browserSync.stream())
     );
