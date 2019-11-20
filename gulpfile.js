@@ -3,43 +3,80 @@ var autoprefixer = require("autoprefixer"),
     browserSync = require("browser-sync").create(),
     buffer = require("vinyl-buffer"),
     cssnano = require("cssnano"),
+    del = require("del"),
+    glob = require("glob"),
     gulp = require("gulp"),
     htmlmin = require("gulp-htmlmin"),
     postcss = require("gulp-postcss"),
+    rename = require('gulp-rename'),
     sass = require("gulp-sass"),
     source = require("vinyl-source-stream"),
     sourcemaps = require("gulp-sourcemaps"),
     uglify = require("gulp-uglify");
 
 var paths = {
-    styles: {
-        src: "_dev/assets/styles/*.scss",
-        dest: "_prod/assets/styles"
+    temp: {
+        css: "_temp/assets/css/",
+        img: "_temp/assets/img/",
+        js: "_temp/assets/js/",
+        root: "_temp/"
     },
-    scripts: {
-        src: "_dev/assets/scripts/*.js",
-        dest: "_prod/assets/scripts"
+    dev: {
+        scss: "_dev/assets/scss/*.{scss,sass}",
+        img: "_dev/assets/img/*.{png,jpg,jpeg,gif,svg}",
+        js: "_dev/assets/js/*.js",
+        html: "_dev/*.html"
     },
-    html: {
-        src: "_dev/*.html",
-        dest: "_prod/"
+    prod: {
+        css: "_prod/assets/css/",
+        img: "_prod/assets/img/",
+        js: "_prod/assets/js/",
+        root: "_prod/"
     }
 };
 
-function reload() {
+function reload(done) {
     browserSync.reload();
+    done();
 }
 
-function style() {
+function clean() {
+    return del([paths.temp.root]);
+}
+
+function moveHtmlToTemp() {
+    return gulp
+        .src(paths.dev.html)
+        .pipe(gulp.dest(paths.temp.root));
+}
+
+function buildJSIntoTemp() {
+    var jsFiles = glob.sync(paths.dev.js);
+    return (
+        browserify({
+            entries: jsFiles
+        })
+        .bundle()
+        .pipe(source("script.min.js"))
+        .pipe(buffer())
+        .pipe(uglify())
+        .pipe(gulp.dest(paths.temp.js))
+    );
+}
+
+function compileCSSIntoTemp() {
     return (
         gulp
-        .src(paths.styles.src)
+        .src(paths.dev.scss)
         .pipe(sourcemaps.init())
         .pipe(sass())
         .on("error", sass.logError)
         .pipe(postcss([autoprefixer(), cssnano()]))
         .pipe(sourcemaps.write())
-        .pipe(gulp.dest(paths.styles.dest))
+        .pipe(rename({
+            suffix: '.min'
+        }))
+        .pipe(gulp.dest(paths.temp.css))
         .pipe(browserSync.stream())
     );
 }
@@ -47,36 +84,60 @@ function style() {
 function watch() {
     browserSync.init({
         server: {
-            baseDir: "_dev/"
+            baseDir: "_temp/"
         }
     });
-    gulp.watch(paths.styles.src, style);
-    gulp.watch(paths.html.src, reload);
+    gulp.watch(paths.dev.scss, compileCSSIntoTemp);
+    gulp.watch(paths.dev.js, gulp.parallel(buildJSIntoTemp, reload));
+    gulp.watch(paths.dev.html, gulp.parallel(moveHtmlToTemp, reload));
 }
 
-function javascriptBuild() {
+function moveHtmlToProd() {
+    return gulp
+        .src(paths.dev.html)
+        .pipe(htmlmin())
+        .pipe(gulp.dest(paths.prod.root));
+}
+
+function buildJSIntoProd() {
+    var jsFiles = glob.sync(paths.dev.js);
     return (
         browserify({
-            entries: ["_dev/assets/scripts/index.js"]
+            entries: jsFiles
         })
         .bundle()
-        .pipe(source("_dev/assets/scripts/index.js"))
+        .pipe(source("script.min.js"))
         .pipe(buffer())
         .pipe(uglify())
-        .pipe(gulp.dest(paths.scripts.dest))
+        .pipe(gulp.dest(paths.prod.js))
     );
 }
 
-function htmlBuild() {
-    return gulp
-        .src(paths.html.src)
-        .pipe(htmlmin())
-        .pipe(gulp.dest(paths.html.dest));
+function compileCSSIntoProd() {
+    return (
+        gulp
+        .src(paths.dev.scss)
+        .pipe(sourcemaps.init())
+        .pipe(sass())
+        .on("error", sass.logError)
+        .pipe(postcss([autoprefixer(), cssnano()]))
+        .pipe(sourcemaps.write())
+        .pipe(rename({
+            suffix: '.min'
+        }))
+        .pipe(gulp.dest(paths.prod.css))
+        .pipe(browserSync.stream())
+    );
 }
 
-exports.style = style;
+exports.moveHtmlToTemp = moveHtmlToTemp;
+exports.buildJSIntoTemp = buildJSIntoTemp;
+exports.compileCSSIntoTemp = compileCSSIntoTemp;
 exports.watch = watch;
-exports.javascriptBuild = javascriptBuild;
-exports.htmlBuild = htmlBuild;
-exports.build = gulp.parallel(javascriptBuild, htmlBuild, style);
-exports.default = watch;
+
+exports.moveHtmlToProd = moveHtmlToProd;
+exports.buildJSIntoProd = buildJSIntoProd;
+exports.compileCSSIntoProd = compileCSSIntoProd;
+
+exports.default = gulp.series(clean, gulp.parallel(moveHtmlToTemp, buildJSIntoTemp, compileCSSIntoTemp), watch);
+exports.build = gulp.series(gulp.parallel(moveHtmlToProd, buildJSIntoProd, compileCSSIntoProd), clean);
