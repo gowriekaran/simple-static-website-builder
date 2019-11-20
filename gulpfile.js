@@ -19,18 +19,22 @@ var paths = {
         css: "_temp/assets/css/",
         img: "_temp/assets/img/",
         js: "_temp/assets/js/",
+        json: "_temp/assets/json/",
         root: "_temp/"
     },
     dev: {
         scss: "_dev/assets/scss/*.{scss,sass}",
+        css: "_dev/assets/css/*.css",
         img: "_dev/assets/img/*.{png,jpg,jpeg,gif,svg}",
         js: "_dev/assets/js/*.js",
+        json: "_dev/assets/json/*.json",
         html: "_dev/*.html"
     },
     prod: {
         css: "_prod/assets/css/",
         img: "_prod/assets/img/",
         js: "_prod/assets/js/",
+        json: "_prod/assets/json/",
         root: "_prod/"
     }
 };
@@ -64,7 +68,13 @@ function buildJSIntoTemp() {
     );
 }
 
-function compileCSSIntoTemp() {
+function moveCSSToTemp() {
+    return gulp
+        .src(paths.dev.css)
+        .pipe(gulp.dest(paths.temp.css));
+}
+
+function compileSCSSIntoTemp() {
     return (
         gulp
         .src(paths.dev.scss)
@@ -81,13 +91,19 @@ function compileCSSIntoTemp() {
     );
 }
 
+function moveJSONToTemp() {
+    return gulp
+        .src(paths.dev.json)
+        .pipe(gulp.dest(paths.temp.json));
+}
+
 function watch() {
     browserSync.init({
         server: {
             baseDir: "_temp/"
         }
     });
-    gulp.watch(paths.dev.scss, compileCSSIntoTemp);
+    gulp.watch(paths.dev.scss, compileSCSSIntoTemp);
     gulp.watch(paths.dev.js, gulp.parallel(buildJSIntoTemp, reload));
     gulp.watch(paths.dev.html, gulp.parallel(moveHtmlToTemp, reload));
 }
@@ -113,7 +129,14 @@ function buildJSIntoProd() {
     );
 }
 
-function compileCSSIntoProd() {
+function moveCSSToProd() {
+    return gulp
+        .src(paths.dev.css)
+        .pipe(htmlmin())
+        .pipe(gulp.dest(paths.prod.css));
+}
+
+function compileSCSSIntoProd() {
     return (
         gulp
         .src(paths.dev.scss)
@@ -130,14 +153,24 @@ function compileCSSIntoProd() {
     );
 }
 
+function moveJSONToProd() {
+    return gulp
+        .src(paths.dev.json)
+        .pipe(gulp.dest(paths.prod.json));
+}
+
 exports.moveHtmlToTemp = moveHtmlToTemp;
 exports.buildJSIntoTemp = buildJSIntoTemp;
-exports.compileCSSIntoTemp = compileCSSIntoTemp;
+exports.moveCSSToTemp = moveCSSToTemp;
+exports.compileSCSSIntoTemp = compileSCSSIntoTemp;
+exports.moveJSONToTemp = moveJSONToTemp;
 exports.watch = watch;
 
 exports.moveHtmlToProd = moveHtmlToProd;
 exports.buildJSIntoProd = buildJSIntoProd;
-exports.compileCSSIntoProd = compileCSSIntoProd;
+exports.moveCSSToProd = moveCSSToProd;
+exports.compileSCSSIntoProd = compileSCSSIntoProd;
+exports.moveJSONToProd = moveJSONToProd;
 
-exports.default = gulp.series(clean, gulp.parallel(moveHtmlToTemp, buildJSIntoTemp, compileCSSIntoTemp), watch);
-exports.build = gulp.series(gulp.parallel(moveHtmlToProd, buildJSIntoProd, compileCSSIntoProd), clean);
+exports.default = gulp.series(clean, gulp.parallel(moveHtmlToTemp, buildJSIntoTemp, moveCSSToTemp, compileSCSSIntoTemp, moveJSONToTemp), watch);
+exports.build = gulp.series(gulp.parallel(moveHtmlToProd, buildJSIntoProd, moveCSSToProd, compileSCSSIntoProd, moveJSONToProd), clean);

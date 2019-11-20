@@ -2,3 +2,4 @@ node_modules/
 .ds_store
 _prod/
 _temp/
+_dev/assets/json/particles.json

@@ -13,8 +13,8 @@ Run `npm install --save-dev`
     _dev
         index.html
         /assets
-            /js
-            /scss
-                styles.scss
+            /css
             /img
-    
+            /js
+            /json
+            /scss    
