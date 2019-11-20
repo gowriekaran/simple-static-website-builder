@@ -25,7 +25,7 @@ var paths = {
     dev: {
         scss: "_dev/assets/scss/*.{scss,sass}",
         css: "_dev/assets/css/*.css",
-        img: "_dev/assets/img/*.{png,jpg,jpeg,gif,svg}",
+        img: "_dev/assets/img/*.{png,jpg,jpeg,gif,svg,ico}",
         js: "_dev/assets/js/*.js",
         json: "_dev/assets/json/*.json",
         html: "_dev/*.html"
@@ -97,6 +97,12 @@ function moveJSONToTemp() {
         .pipe(gulp.dest(paths.temp.json));
 }
 
+function moveIMGToTemp() {
+    return gulp
+        .src(paths.dev.img)
+        .pipe(gulp.dest(paths.temp.img));
+}
+
 function watch() {
     browserSync.init({
         server: {
@@ -159,11 +165,18 @@ function moveJSONToProd() {
         .pipe(gulp.dest(paths.prod.json));
 }
 
+function moveIMGToProd() {
+    return gulp
+        .src(paths.dev.img)
+        .pipe(gulp.dest(paths.prod.img));
+}
+
 exports.moveHtmlToTemp = moveHtmlToTemp;
 exports.buildJSIntoTemp = buildJSIntoTemp;
 exports.moveCSSToTemp = moveCSSToTemp;
 exports.compileSCSSIntoTemp = compileSCSSIntoTemp;
 exports.moveJSONToTemp = moveJSONToTemp;
+exports.moveIMGToTemp = moveIMGToTemp;
 exports.watch = watch;
 
 exports.moveHtmlToProd = moveHtmlToProd;
@@ -171,6 +184,7 @@ exports.buildJSIntoProd = buildJSIntoProd;
 exports.moveCSSToProd = moveCSSToProd;
 exports.compileSCSSIntoProd = compileSCSSIntoProd;
 exports.moveJSONToProd = moveJSONToProd;
+exports.moveIMGToProd = moveIMGToProd;
 
-exports.default = gulp.series(clean, gulp.parallel(moveHtmlToTemp, buildJSIntoTemp, moveCSSToTemp, compileSCSSIntoTemp, moveJSONToTemp), watch);
-exports.build = gulp.series(gulp.parallel(moveHtmlToProd, buildJSIntoProd, moveCSSToProd, compileSCSSIntoProd, moveJSONToProd), clean);
+exports.default = gulp.series(clean, gulp.parallel(moveHtmlToTemp, buildJSIntoTemp, moveCSSToTemp, compileSCSSIntoTemp, moveJSONToTemp, moveIMGToTemp), watch);
+exports.build = gulp.series(gulp.parallel(moveHtmlToProd, buildJSIntoProd, moveCSSToProd, compileSCSSIntoProd, moveJSONToProd, moveIMGToProd), clean);
