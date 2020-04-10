@@ -15,27 +15,33 @@ var autoprefixer = require("autoprefixer"),
     uglify = require("gulp-uglify");
 
 var paths = {
+    dev: {
+        css: "_dev/assets/css/*.css",
+        html: "_dev/*.html",
+        img: "_dev/assets/img/**/*.*",
+        js: "_dev/assets/js/*.js",
+        json: "_dev/assets/json/*.json",
+        projects: "_dev/assets/projects/**/*.*",
+        scss: "_dev/assets/scss/*.{scss,sass}",
+        video: "_dev/assets/video/**/*.*"
+    },
     temp: {
         css: "_temp/assets/css/",
         img: "_temp/assets/img/",
         js: "_temp/assets/js/",
         json: "_temp/assets/json/",
-        root: "_temp/"
-    },
-    dev: {
-        scss: "_dev/assets/scss/*.{scss,sass}",
-        css: "_dev/assets/css/*.css",
-        img: "_dev/assets/img/**/*.*",
-        js: "_dev/assets/js/*.js",
-        json: "_dev/assets/json/*.json",
-        html: "_dev/*.html"
+        projects: "_temp/assets/projects/",
+        root: "_temp/",
+        video: "_temp/assets/video/"
     },
     prod: {
         css: "_prod/assets/css/",
         img: "_prod/assets/img/",
         js: "_prod/assets/js/",
         json: "_prod/assets/json/",
-        root: "_prod/"
+        projects: "_prod/assets/projects/",
+        root: "_prod/",
+        video: "_prod/assets/video/"
     }
 };
 
@@ -99,6 +105,18 @@ function moveIMGToTemp() {
     return gulp
         .src(paths.dev.img)
         .pipe(gulp.dest(paths.temp.img));
+}
+
+function moveVIDEOToTemp() {
+    return gulp
+        .src(paths.dev.video)
+        .pipe(gulp.dest(paths.temp.video));
+}
+
+function movePROJECTSToTemp() {
+    return gulp
+        .src(paths.dev.projects)
+        .pipe(gulp.dest(paths.temp.projects));
 }
 
 function watch() {
@@ -167,12 +185,26 @@ function moveIMGToProd() {
         .pipe(gulp.dest(paths.prod.img));
 }
 
+function moveVIDEOToProd() {
+    return gulp
+        .src(paths.dev.video)
+        .pipe(gulp.dest(paths.prod.video));
+}
+
+function movePROJECTSToProd() {
+    return gulp
+        .src(paths.dev.projects)
+        .pipe(gulp.dest(paths.prod.projects));
+}
+
 exports.moveHtmlToTemp = moveHtmlToTemp;
 exports.buildJSIntoTemp = buildJSIntoTemp;
 exports.moveCSSToTemp = moveCSSToTemp;
 exports.compileSCSSIntoTemp = compileSCSSIntoTemp;
 exports.moveJSONToTemp = moveJSONToTemp;
 exports.moveIMGToTemp = moveIMGToTemp;
+exports.moveVIDEOToTemp = moveVIDEOToTemp;
+exports.movePROJECTSToTemp = movePROJECTSToTemp;
 exports.watch = watch;
 
 exports.moveHtmlToProd = moveHtmlToProd;
@@ -181,6 +213,8 @@ exports.moveCSSToProd = moveCSSToProd;
 exports.compileSCSSIntoProd = compileSCSSIntoProd;
 exports.moveJSONToProd = moveJSONToProd;
 exports.moveIMGToProd = moveIMGToProd;
+exports.moveVIDEOToProd = moveVIDEOToProd;
+exports.movePROJECTSToProd = movePROJECTSToProd;
 
-exports.default = gulp.series(clean, gulp.parallel(moveHtmlToTemp, buildJSIntoTemp, moveCSSToTemp, compileSCSSIntoTemp, moveJSONToTemp, moveIMGToTemp), watch);
-exports.build = gulp.series(gulp.parallel(moveHtmlToProd, buildJSIntoProd, moveCSSToProd, compileSCSSIntoProd, moveJSONToProd, moveIMGToProd), clean);
+exports.default = gulp.series(clean, gulp.parallel(moveHtmlToTemp, buildJSIntoTemp, moveCSSToTemp, compileSCSSIntoTemp, moveJSONToTemp, moveIMGToTemp, moveVIDEOToTemp, movePROJECTSToTemp), watch);
+exports.build = gulp.series(gulp.parallel(moveHtmlToProd, buildJSIntoProd, moveCSSToProd, compileSCSSIntoProd, moveJSONToProd, moveIMGToProd, moveVIDEOToProd, movePROJECTSToProd), clean);
